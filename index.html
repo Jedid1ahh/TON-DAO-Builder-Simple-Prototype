@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TON DAO Builder - Prototype</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .navbar {
+            background-color: #0088cc !important;
+        }
+        .navbar-brand {
+            font-weight: bold;
+        }
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            border: none;
+        }
+        .card-header {
+            font-weight: bold;
+            background-color: rgba(0, 136, 204, 0.1);
+        }
+        .btn-primary {
+            background-color: #0088cc;
+            border-color: #0088cc;
+        }
+        .btn-primary:hover {
+            background-color: #006699;
+            border-color: #006699;
+        }
+        .sidebar {
+            background-color: white;
+            height: 100%;
+            padding: 20px 0;
+            border-right: 1px solid #e3e3e3;
+        }
+        .sidebar-item {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-left: 4px solid transparent;
+        }
+        .sidebar-item:hover, .sidebar-item.active {
+            background-color: rgba(0, 136, 204, 0.1);
+            border-left: 4px solid #0088cc;
+        }
+        .dashboard-container {
+            padding: 20px;
+        }
+        .token-badge {
+            background-color: #0088cc;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+        .proposal-card {
+            transition: transform 0.2s;
+        }
+        .proposal-card:hover {
+            transform: translateY(-5px);
+        }
+        #daoSection, #tokenSection, #proposalSection, #treasurySection {
+            display: none;
+        }
+        #homeSection {
+            display: block;
+        }
+        .progress {
+            height: 8px;
+        }
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: #dc3545;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="#">TON DAO Builder</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="connectWalletBtn">Connect Wallet</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+                <div class="position-sticky">
+                    <div class="sidebar-item active" data-section="homeSection">
+                        <i class="fas fa-home me-2"></i> Home
+                    </div>
+                    <div class="sidebar-item" data-section="daoSection">
+                        <i class="fas fa-users me-2"></i> DAO Management
+                    </div>
+                    <div class="sidebar-item" data-section="tokenSection">
+                        <i class="fas fa-coins me-2"></i> Governance Tokens
+                    </div>
+                    <div class="sidebar-item" data-section="proposalSection">
+                        <i class="fas fa-vote-yea me-2"></i> Proposals & Voting
+                        <span class="notification-badge" id="proposalNotification">2</span>
+                    </div>
+                    <div class="sidebar-item" data-section="treasurySection">
+                        <i class="fas fa-treasure-chest me-2"></i> Treasury
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10 dashboard-container">
+                <!-- Home Section -->
+                <div id="homeSection">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2>Dashboard</h2>
+                        <button class="btn btn-primary" id="createDaoBtn">Create New DAO</button>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">My DAOs</h5>
+                                    <h2 class="card-text">0</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Active Proposals</h5>
+                                    <h2 class="card-text">0</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Governance Tokens</h5>
+                                    <h2 class="card-text">0</h2>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            Welcome to TON DAO Builder
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title">Get Started</h5>
+                            <p class="card-text">Create your first DAO on the TON blockchain in just a few simple steps.</p>
+                            <ol>
+                                <li>Connect your TON wallet</li>
+                                <li>Create a new DAO with custom parameters</li>
+                                <li>Mint and distribute governance tokens</li>
+                                <li>Create proposals and vote</li>
+                                <li>Manage your DAO treasury</li>
+                            </ol>
+                            <button class="btn btn-primary" id="tutorialBtn">View Tutorial</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DAO Management Section -->
+                <div id="daoSection">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2>DAO Management</h2>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createDaoModal">Create New DAO</button>
+                    </div>
+
+                    <div class="card" id="noDaosCard">
+                        <div class="card-body text-center p-5">
+                            <h5 class="card-title">No DAOs Created Yet</h5>
+                            <p class="card-text">Create your first DAO to get started with governance on the TON blockchain.</p>
+                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createDaoModal">Create DAO</button>
+                        </div>
+                    </div>
+
+                    <div class="row" id="daoList" style="display: none;">
+                        <!-- DAO cards will be dynamically added here -->
+                    </div>
+                </div>
+
+                <!-- Token Management Section -->
+                <div id="tokenSection">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2>Governance Tokens</h2>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#mintTokensModal">Mint Tokens</button>
+                    </div>
+
+                    <div class="card" id="noTokensCard">
+                        <div class="card-body text-center p-5">
+                            <h5 class="card-title">No Governance Tokens Created</h5>
+                            <p class="card-text">Create a DAO first, then mint governance tokens for voting rights.</p>
+                        </div>
+                    </div>
+
+                    <div id="tokenInfo" style="display: none;">
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                Token Information
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p><strong>Token Name:</strong> <span id="tokenName">-</span></p>
+                                        <p><strong>Token Symbol:</strong> <span id="tokenSymbol">-</span></p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p><strong>Total Supply:</strong> <span id="tokenSupply">-</span></p>
+                                        <p><strong>Your Balance:</strong> <span id="yourBalance">-</span></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                Token Distribution
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>Address</th>
+                                                <th>Amount</th>
+                                                <th>Percentage</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tokenDistributionTable">
+                                            <!-- Token distribution data will be added here -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Proposals Section -->
+                <div id="proposalSection">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2>Proposals & Voting</h2>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createProposalModal">Create Proposal</button>
+                    </div>
+
+                    <div class="card" id="noProposalsCard">
+                        <div class="card-body text-center p-5">
+                            <h5 class="card-title">No Proposals Created</h5>
+                            <p class="card-text">Create your first proposal to start the governance process.</p>
+                        </div>
+                    </div>
+
+                    <div id="proposalList" style="display: none;">
+                        <!-- Proposal cards will be dynamically added here -->
+                    </div>
+                </div>
+
+                <!-- Treasury Section -->
+                <div id="treasurySection">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2>Treasury</h2>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#requestFundsModal">Request Funds</button>
+                    </div>
+
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            Treasury Balance
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h3>0 TON</h3>
+                                    <p>Total Treasury Balance</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="d-flex justify-content-end">
+                                        <button class="btn btn-outline-primary me-2">Deposit</button>
+                                        <button class="btn btn-outline-primary" disabled>Withdraw</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            Transaction History
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Description</th>
+                                            <th>Amount</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="treasuryTransactions">
+                                        <tr>
+                                            <td colspan="4" class="text-center">No transactions yet</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create DAO Modal -->
+    <div class="modal fade" id="createDaoModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create New DAO</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="createDaoForm">
+                        <div class="mb-3">
+                            <label for="daoName" class="form-label">DAO Name</label>
+                            <input type="text" class="form-control" id="daoName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="daoDescription" class="form-label">Description</label>
+                            <textarea class="form-control" id="daoDescription" rows="3" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="daoTokenName" class="form-label">Token Name</label>
+                            <input type="text" class="form-control" id="daoTokenName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="daoTokenSymbol" class="form-label">Token Symbol</label>
+                            <input type="text" class="form-control" id="daoTokenSymbol" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="daoTokenSupply" class="form-label">Token Supply</label>
+                            <input type="number" class="form-control" id="daoTokenSupply" min="1" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="submitCreateDao">Create DAO</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mint Tokens Modal -->
+    <div class="modal fade" id="mintTokensModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Mint Governance Tokens</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="mintTokensForm">
+                        <div class="mb-3">
+                            <label for="recipientAddress" class="form-label">Recipient Address</label>
+                            <input type="text" class="form-control" id="recipientAddress" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="tokenAmount" class="form-label">Amount</label>
+                            <input type="number" class="form-control" id="tokenAmount" min="1" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="submitMintTokens">Mint Tokens</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Proposal Modal -->
+    <div class="modal fade" id="createProposalModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create New Proposal</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="createProposalForm">
+                        <div class="mb-3">
+                            <label for="proposalTitle" class="form-label">Title</label>
+                            <input type="text" class="form-control" id="proposalTitle" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="proposalDescription" class="form-label">Description</label>
+                            <textarea class="form-control" id="proposalDescription" rows="3" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Voting Type</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="votingType" id="yesNoVoting" value="yesNo" checked>
+                                <label class="form-check-label" for="yesNoVoting">
+                                    Yes/No Vote
+                                </label>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="votingDuration" class="form-label">Voting Duration (in days)</label>
+                            <input type="number" class="form-control" id="votingDuration" min="1" max="30" value="7" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="submitCreateProposal">Create Proposal</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Request Funds Modal -->
+    <div class="modal fade" id="requestFundsModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Request Funds from Treasury</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="requestFundsForm">
+                        <div class="mb-3">
+                            <label for="requestAmount" class="form-label">Amount (TON)</label>
+                            <input type="number" class="form-control" id="requestAmount" min="0.1" step="0.1" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="requestReason" class="form-label">Reason</label>
+                            <textarea class="form-control" id="requestReason" rows="3" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="receivingAddress" class="form-label">Receiving Address</label>
+                            <input type="text" class="form-control" id="receivingAddress" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="submitFundRequest">Submit Request</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vote Modal -->
+    <div class="modal fade" id="voteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Vote on Proposal</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <h5 id="voteProposalTitle"></h5>
+                    <p id="voteProposalDescription"></p>
+                    <form id="voteForm">
+                        <div class="mb-3">
+                            <label class="form-label">Your Vote</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="vote" id="voteYes" value="yes" checked>
+                                <label class="form-check-label" for="voteYes">
+                                    Yes
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="vote" id="voteNo" value="no">
+                                <label class="form-check-label" for="voteNo">
+                                    No
+                                </label>
+                            </div>
+                        </div>
+                        <input type="hidden" id="proposalId">
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="submitVote">Submit Vote</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Toast -->
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+        <div id="successToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header bg-success text-white">
+                <strong class="me-auto">Success</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body" id="successToastMessage">
+                Operation completed successfully!
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <script>
+        // Sample data
+        let currentUser = {
+            address: null,
+            connected: false
+        };
+
+        let daoData = null;
+        let proposalsData = [];
+        let tokensData = null;
+        let treasuryTransactions = [];
+
+        // DOM elements
+        const connectWalletBtn = document.getElementById('connectWalletBtn');
+        const createDaoBtn = document.getElementById('createDaoBtn');
+        const submitCreateDaoBtn = document.getElementById('submitCreateDao');
+        const submitMintTokensBtn = document.getElementById('submitMintTokens');
+        const submitCreateProposalBtn = document.getElementById('submitCreateProposal');
+        const submitFundRequestBtn = document.getElementById('submitFundRequest');
+        const submitVoteBtn = document.getElementById('submitVote');
+        const sidebarItems = document.querySelectorAll('.sidebar-item');
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Navigation
+            sidebarItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const section = this.getAttribute('data-section');
+                    hideAllSections();
+                    document.getElementById(section).style.display = 'block';
+                    
+                    // Update active state
+                    sidebarItems.forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Remove notification badge when visiting proposals
+                    if (section === 'proposalSection') {
+                        document.getElementById('proposalNotification').style.display = 'none';
+                    }
+                });
+            });
+
+            // Connect Wallet
+            connectWalletBtn.addEventListener('click', connectWallet);
+            
+            // Create DAO
+            createDaoBtn.addEventListener('click', function() {
+                if (!currentUser.connected) {
+                    showToast('Please connect your wallet first');
+                    return;
+                }
+                const modal = new bootstrap.Modal(document.getElementById('createDaoModal'));
+                modal.show();
+            });
+            
+            submitCreateDaoBtn.addEventListener('click', createDao);
+            
+            // Mint Tokens
+            submitMintTokensBtn.addEventListener('click', mintTokens);
+            
+            // Create Proposal
+            submitCreateProposalBtn.addEventListener('click', createProposal);
+            
+            // Request Funds
+            submitFundRequestBtn.addEventListener('click', requestFunds);
+            
+            // Submit Vote
+            submitVoteBtn.addEventListener('click', submitVote);
+
+            // Sample proposals (for demo purposes)
+            proposalsData = [
+                {
+                    id: 1,
+                    title: "Fund Community Development",
+                    description: "Allocate 1000 TON for community development initiatives",
+                    creator: "UQD...4f2A",
+                    createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+                    endsAt: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
+                    status: "active",
+                    votesYes: 1200,
+                    votesNo: 800,
+                    totalVotes: 2000,
+                    userVoted: false
+                },
+                {
+                    id: 2,
+                    title: "Integrate with TON Storage",
+                    description: "Approve integration with TON Storage for DAO document management",
+                    creator: "UQF...9a2B",
+                    createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+                    endsAt: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000),
+                    status: "active",
+                    votesYes: 1500,
+                    votesNo: 500,
+                    totalVotes: 2000,
+                    userVoted: false
+                }
+            ];
+        });
+
+        // Connect Wallet
+        function connectWallet() {
+            // In a real app, this would connect to TON wallet
+            currentUser.address = "UQA...7d3C";
+            currentUser.connected = true;
+            connectWalletBtn.textContent = "Connected: UQA...7d3C";
+            connectWalletBtn.classList.add("btn-success");
+            connectWalletBtn.classList.remove("btn-primary");
+            
+            // Show success toast
+            showToast("Wallet connected successfully");
+        }
+
+        // Create DAO
+        function createDao() {
+            const name = document.getElementById('daoName').value;
+            const description = document.getElementById('daoDescription').value;
+            const tokenName = document.getElementById('daoTokenName').value;
+            const tokenSymbol = document.getElementById('daoTokenSymbol').value;
+            const tokenSupply = document.getElementById('daoTokenSupply').value;
+            
+            if (!name || !description || !tokenName || !tokenSymbol || !tokenSupply) {
+                alert("Please fill in all fields");
+                return;
+            }
+            
+            // Create DAO data
+            daoData = {
+                name: name,
+                description: description,
+                creator: currentUser.address,
+                createdAt: new Date(),
+                memberCount: 1,
+                proposalCount: 0
+            };
+            
+            // Create token data
+            tokensData = {
+                name: tokenName,
+                symbol: tokenSymbol,
+                totalSupply: parseInt(tokenSupply),
+                distribution: [
+                    {
+                        address: currentUser.address,
+                        amount: parseInt(tokenSupply),
+                        percentage: 100
+                    }
+                ]
+            };
+            
+            // Update UI
+            document.getElementById('noDaosCard').style.display = 'none';
+            document.getElementById('daoList').style.display = 'block';
+            
+            // Add DAO card
+            const daoList = document.getElementById('daoList');
+            daoList.innerHTML = `
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">${daoData.name}</h5>
+                            <p class="card-text">${daoData.description}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="badge bg-primary me-2">${tokensData.symbol}</span>
+                                    <small>Created ${formatDate(daoData.createdAt)}</small>
+                                </div>
+                                <button class="btn btn-sm btn-outline-primary">Manage</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Update token section
+            document.getElementById('noTokensCard').style.display = 'none';
+            document.getElementById('tokenInfo').style.display = 'block';
+            document.getElementById('tokenName').textContent = tokensData.name;
+            document.getElementById('tokenSymbol').textContent = tokensData.symbol;
+            document.getElementById('tokenSupply').textContent = tokensData.totalSupply;
+            document.getElementById('yourBalance').textContent = tokensData.totalSupply;
+            
+            // Update token distribution table
+            const tokenDistributionTable = document.getElementById('tokenDistributionTable');
+            tokenDistributionTable.innerHTML = tokensData.distribution.map(item => `
+                <tr>
+                    <td>${item.address}</td>
+                    <td>${item.amount}</td>
+                    <td>${item.percentage}%</td>
+                </tr>
+            `).join('');
+            
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('createDaoModal'));
+            modal.hide();
+            
+            // Show success toast
+            showToast("DAO created successfully");
+            
+            // Update proposals section
+            updateProposalsUI();
+        }
+
+        // Mint Tokens
+        function mintTokens() {
+            if (!tokensData) {
+                alert("Please create a DAO first");
+                return;
+            }
+            
+            const address = document.getElementById('recipientAddress').value;
+            const amount = parseInt(document.getElementById('tokenAmount').value);
+            
+            if (!address || !amount) {
+                alert("Please fill in all fields");
+                return;
+            }
+            
+            // Check if address already exists in distribution
+            const existingIndex = tokensData.distribution.findIndex(item => item.address === address);
+            
+            if (existingIndex !== -1) {
+                tokensData.distribution[existingIndex].amount += amount;
+            } else {
+                tokensData.distribution.push({
+                    address: address,
+                    amount: amount,
+                    percentage: 0
+                });
+            }
+            
+            // Update total supply
+            tokensData.totalSupply += amount;
+            
+            // Recalculate percentages
+            tokensData.distribution.forEach(item => {
+                item.percentage = Math.round((item.amount / tokensData.totalSupply) * 100);
+            });
+            
+            // Update UI
+            document.getElementById('tokenSupply').textContent = tokensData.totalSupply;
+            
+            // If current user's address matches, update their balance
+            if (address === currentUser.address) {
+                const userAmount = tokensData.distribution.find(item => item.address === currentUser.address).amount;
+                document.getElementById('yourBalance').textContent = userAmount;
+            }
+            
+            // Update token distribution table
+            const tokenDistributionTable = document.getElementById('tokenDistributionTable');
+            tokenDistributionTable.innerHTML = tokensData.distribution.map(item => `
+                <tr>
+                    <td>${item.address}</td>
+                    <td>${item.amount}</td>
+                    <td>${item.percentage}%</td>
+                </tr>
+            `).join('');
+            
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('mintTokensModal'));
+            modal.hide();
+            
+            // Show success toast
+            showToast("Tokens minted successfully");
+        }
+
+        // Create Proposal
+        function createProposal() {
+            if (!daoData) {
+                alert("Please create a DAO first");
+                return;
+            }
+            
+            const title = document.getElementById('proposalTitle').value;
+            const description = document.getElementById('proposalDescription').value;
+            const votingDuration = parseInt(document.getElementById('votingDuration').value);
+            
+            if (!title || !description || !votingDuration) {
+                alert("Please fill in all fields");
+                return;
+            }
+            
+            // Create proposal
+            const proposal = {
+                id: proposalsData.length + 1,
+                title: title,
+                description: description,
+                creator: currentUser.address,
+                createdAt: new Date(),
+                endsAt: new Date(Date.now() + votingDuration * 24 * 60 * 60 * 1000),
+                status: "active",
+                votesYes: 0,
+                votesNo: 0,
+                totalVotes: 0,
+                userVoted: false
+            };
+            
+            // Add to proposals
+            proposalsData.push(proposal);
+            
+            // Update DAO data
+            daoData.proposalCount++;
+            
+            // Update UI
+            updateProposalsUI();
+            
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('createProposalModal'));
+            modal.hide();
+            
+            // Show success toast
+            showToast("Proposal created successfully");
+        }
+
+        // Request Funds
+        function requestFunds() {
+            if (!daoData) {
+                alert("Please create a DAO first");
+                return;
+            }
+            
+            const amount = parseFloat(document.getElementById('requestAmount').value);
+            const reason = document.getElementById('requestReason').value;
+            const address = document.getElementById('receivingAddress').value;
+            
+            if (!amount || !reason || !address) {
+                alert("Please fill in all fields");
+                return;
+            }
+            
+            // Create proposal for fund request
+            const proposal = {
+                id: proposalsData.length + 1,
+                title: `Fund request: ${amount} TON`,
+                description: reason,
+                creator: currentUser.address,
+                createdAt: new Date(),
+                endsAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+                status: "active",
+                votesYes: 0,
+                votesNo: 0,
+                totalVotes: 0,
+                userVoted: false,
+                fundRequest: {
+                    amount: amount,
+                    recipient: address
+                }
+            };
+            
+            // Add to proposals
+            proposalsData.push(proposal);
+            
+            // Update DAO data
+            daoData.proposalCount++;
+            
+            // Update UI
+            updateProposalsUI();
+            
+            // Add to transaction history (pending)
+            treasuryTransactions.push({
+                date: new Date(),
+                description: reason,
+                amount: amount,
+                status: "Pending approval"
+            });
+            
+            // Update treasury transactions table
+            updateTreasuryUI();
+            
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('requestFundsModal'));
+            modal.hide();
+            
+            // Show success toast
+            showToast("Fund request submitted successfully");
+        }
+
+        // Submit Vote
+        function submitVote() {
+            const proposalId = parseInt(document.getElementById('proposalId').value);
+            const vote = document.querySelector('input[name="vote"]:checked').value;
+            
+            // Find proposal
+            const proposalIndex = proposalsData.findIndex(p => p.id === proposalId);
+            
+            if (proposalIndex === -1) {
+                alert("Proposal not found");
+                return;
+            }
+            
+            const proposal = proposalsData[proposalIndex];
+            
+            // Check if user has already voted
+            if (proposal.userVoted) {
+                alert("You have already voted on this proposal");
+                return;
+            }
+            
+            // Update vote counts
+            if (vote === "yes") {
+                proposal.votesYes += 100; // Simulating vote weight based on tokens
+            } else {
+                proposal.votesNo += 100;
+            }
+            
+            proposal.totalVotes = proposal.votesYes + proposal.votesNo;
+            proposal.userVoted = true;
+            
+            // Update UI
+            updateProposalsUI();
+            
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('voteModal'));
+            modal.hide();
+            
+            // Show success toast
+            showToast("Vote submitted successfully");
+        }
+
+        // Show Vote Modal
+        function showVoteModal(proposalId) {
+            const proposal = proposalsData.find(p => p.id === proposalId);
+            
+            if (!proposal) {
+                alert("Proposal not found");
+                return;
+            }
+            
+            document.getElementById('voteProposalTitle').textContent = proposal.title;
+            document.getElementById('voteProposalDescription').textContent = proposal.description;
+            document.getElementById('proposalId').value = proposalId;
+            
+            const modal = new bootstrap.Modal(document.getElementById('voteModal'));
+            modal.show();
+        }
+
+        // Update Proposals UI
+        function updateProposalsUI() {
+            if (proposalsData.length === 0) {
+                document.getElementById('noProposalsCard').style.display = 'block';
+                document.getElementById('proposalList').style.display = 'none';
+                return;
+            }
+            
+            document.getElementById('noProposalsCard').style.display = 'none';
+            document.getElementById('proposalList').style.display = 'block';
+            
+            const proposalList = document.getElementById('proposalList');
+            proposalList.innerHTML = proposalsData.map((proposal, index) => {
+                const yesPercentage = proposal.totalVotes > 0 ? Math.round((proposal.votesYes / proposal.totalVotes) * 100) : 0;
+                const noPercentage = proposal.totalVotes > 0 ? Math.round((proposal.votesNo / proposal.totalVotes) * 100) : 0;
+                
+                return `
+                    <div class="col-12 mb-4">
+                        <div class="card proposal-card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">${proposal.title}</h5>
+                                <span class="badge ${proposal.status === 'active' ? 'bg-success' : 'bg-secondary'}">${proposal.status.charAt(0).toUpperCase() + proposal.status.slice(1)}</span>
+                            </div>
+                            <div class="card-body">
+                                <p class="card-text">${proposal.description}</p>
+                                <div class="mb-3">
+                                    <small>Created by ${proposal.creator} on ${formatDate(proposal.createdAt)}</small><br>
+                                    <small>Voting ends on ${formatDate(proposal.endsAt)}</small>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span>Yes: ${proposal.votesYes} (${yesPercentage}%)</span>
+                                        <span>No: ${proposal.votesNo} (${noPercentage}%)</span>
+                                    </div>
+                                    <div class="progress">
+                                        <div class="progress-bar bg-success" style="width: ${yesPercentage}%"></div>
+                                        <div class="progress-bar bg-danger" style="width: ${noPercentage}%"></div>
+                                    </div>
+                                </div>
+                                <div class="d-flex justify-content-end">
+                                    ${proposal.userVoted ? 
+                                        '<button class="btn btn-sm btn-secondary" disabled>Already voted</button>' : 
+                                        `<button class="btn btn-sm btn-primary" onclick="showVoteModal(${proposal.id})">Vote</button>`
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Update Treasury UI
+        function updateTreasuryUI() {
+            const treasuryTransactionsTable = document.getElementById('treasuryTransactions');
+            
+            if (treasuryTransactions.length === 0) {
+                treasuryTransactionsTable.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="text-center">No transactions yet</td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            treasuryTransactionsTable.innerHTML = treasuryTransactions.map(tx => `
+                <tr>
+                    <td>${formatDate(tx.date)}</td>
+                    <td>${tx.description}</td>
+                    <td>${tx.amount} TON</td>
+                    <td>
+                        <span class="badge ${tx.status === 'Completed' ? 'bg-success' : 'bg-warning'}">${tx.status}</span>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Show toast message
+        function showToast(message) {
+            document.getElementById('successToastMessage').textContent = message;
+            const toast = new bootstrap.Toast(document.getElementById('successToast'));
+            toast.show();
+        }
+
+        // Format date
+        function formatDate(date) {
+            return new Date(date).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+        }
+
+        // Hide all sections
+        function hideAllSections() {
+            const sections = ['homeSection', 'daoSection', 'tokenSection', 'proposalSection', 'treasurySection'];
+            sections.forEach(section => {
+                document.getElementById(section).style.display = 'none';
+            });
+        }
+    </script>
+</body>
+</html>
